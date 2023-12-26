@@ -11,6 +11,9 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Runtime.CompilerServices;
 using GuiMGP;
+using System.Windows.Markup;
+using System.Net.NetworkInformation;
+using System.Text;
 
 namespace ProjectFunctions
 {
@@ -56,15 +59,33 @@ namespace ProjectFunctions
         
         public void WriteCsvDocument()
         {
-            
-          
+            CultureInfo cultureInfo = new CultureInfo("pt-BR");
+            TextInfo myTI = cultureInfo.TextInfo;
+            string data = DateTime.Now.ToString("dddd, dd MMMM yyyy HH-mm-ss", cultureInfo);
+
+            string p1 = @"C:\\Users\\Public\\Desktop\";
+            string p2 = myTI.ToTitleCase(data) + ".csv";
+
+            string path = Path.Combine(p1, p2);
+
+
+
+
             ProductInf productType = new ProductInf();
             List<string> urls = new List<string>();
             var tList = new List<ProductInf>();
             
             var allLines = File.ReadAllLines(filePath);
-        
-            foreach (KeyValuePair<string, string> kvp in Info)
+            using (var writer = new StreamWriter(File.Create(path)))
+            using (var write = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                write.WriteRecords("");
+            }
+
+
+
+
+                foreach (KeyValuePair<string, string> kvp in Info)
             {           
               Console.WriteLine($"{kvp.Key},{kvp.Value}");
 
@@ -113,10 +134,13 @@ namespace ProjectFunctions
                 tList.Add(new ProductInf() { Sku = kvp.Key,ProductName = productType.ProductName, Price = productType.Price, Seller = productType.Seller, AdType = productType.AdType });
 
                 Thread.Sleep(200);
-                using (var writer = new StreamWriter(@"C:\Users\rafael\source\repos\GuiMGP\GuiMGP\Tabela.csv"))
+
+               
+
+                using (var writer = new StreamWriter(path,false, Encoding.GetEncoding("ISO-8859-1")))
                 using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
-                 
+
                     csv.WriteRecords(tList);
 
                 }
@@ -158,7 +182,7 @@ namespace ProjectFunctions
             {
                 Console.WriteLine($"{kvp.Key},{kvp.Value}");
             };
-            using (var file = File.CreateText(@"C:\Users\rafael\source\repos\GuiMGP\GuiMGP\urls.txt"))
+            using (var file = File.CreateText(filePath))
             {
                 foreach (KeyValuePair<string, string> kvp in Info)
                 {
