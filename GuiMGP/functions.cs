@@ -153,6 +153,7 @@ namespace ProjectFunctions
 
         public void GetClientlinks(string ClientUrls)
         {
+            
             string []urls = ClientUrls.Split('\n');
             string[] all = File.ReadAllLines(filePath);
 
@@ -162,54 +163,31 @@ namespace ProjectFunctions
                 InfoGotByOldDocument.Add(lines[0],lines[1]);
             };
 
-              File.ReadAllLines(filePath);
-
             foreach (string urlLine in urls)
             {
-                var lines = urlLine.Split(',');
-                NewUrlsGetByTextBox.Add(lines[0],lines[1]);
-            };
-           
-            /*foreach (string url in urls)
-            {
-               Dados.Add(url);
-            }
-         
-            foreach (var item in Dados)
-            {
-                string[] data = item.Split(',');
+                var dataLine = urlLine.Split(',');
 
                 try
                 {
-                    InfoGotByOldDocument.Add(data[0], data[1]);
+                    InfoGotByOldDocument.Add(dataLine[0], dataLine[1]);
                 }
                 catch (ArgumentException)
                 {
-                    
-                    MessageBox.Show($"Um produto com o Sku = {data[0]} Já foi adicionado");
-
-                };
-
-            }
-
-            Console.WriteLine("\n\n");
-
-            foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
-            {
-                Console.WriteLine($"{kvp.Key},{kvp.Value}");
+                    Console.WriteLine($"An element with Key = \"{dataLine[0]}\" already exists.");
+                }
             };
+
             using (var file = File.CreateText(@"C:\Users\rafael\Desktop\aaa.txt"))
             {
                 foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
                 {
                     file.WriteLine($"{kvp.Key},{kvp.Value}");// Substitui o conteúdo do arquivo com este texto
                 };
-            file.Close();
-             */
-        }
-
+                file.Close();
+            }
+        }        
     }  
-  }
+}
 
 
 

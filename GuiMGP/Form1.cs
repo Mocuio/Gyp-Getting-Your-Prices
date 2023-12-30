@@ -84,8 +84,7 @@ namespace GuiMGP
         }
 
         public void AdicionarUrls_Click(object sender, EventArgs e)
-        { 
-         
+        { Functions pg = new Functions();
           Form form3 = new Form3();
           form3.ShowDialog();
           

@@ -34,7 +34,7 @@ namespace GuiMGP
 
         public void button1_Click(object sender, EventArgs e)
         {   Functions pg = new Functions();
-          
+            pg.GetTxtPath();
             pg.GetClientlinks(UrlModifier.Text);
             this.Close();
         }
