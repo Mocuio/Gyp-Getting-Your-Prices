@@ -52,7 +52,6 @@ namespace GuiMGP
 
             pg.GetTxtPath();
             pg.GetDocInfo();
-            pg.GetClientlinks();
             pg.WriteCsvDocument();
 
         }
@@ -84,10 +83,12 @@ namespace GuiMGP
 
         }
 
-        private void AdicionarUrls_Click(object sender, EventArgs e)
+        public void AdicionarUrls_Click(object sender, EventArgs e)
         { 
+         
           Form form3 = new Form3();
-            form3.ShowDialog();
+          form3.ShowDialog();
+          
            
         }   
     }

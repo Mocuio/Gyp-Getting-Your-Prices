@@ -29,7 +29,7 @@ namespace GuiMGP
 
         private void button1_Click(object sender, EventArgs e)
         {   
-            MessageBox.Show(richTextBox1.Text);
+            MessageBox.Show(richTextBox2.Text);
         }
 
         private void Form2_Load(object sender, EventArgs e)

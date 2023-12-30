@@ -30,7 +30,7 @@
         {
             this.button1 = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -55,15 +55,15 @@
             this.panel1.Size = new System.Drawing.Size(143, 541);
             this.panel1.TabIndex = 2;
             // 
-            // richTextBox1
+            // richTextBox2
             // 
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(1286, 541);
-            this.richTextBox1.TabIndex = 3;
-            this.richTextBox1.Text = "";
-            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged_2);
+            this.richTextBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox2.Location = new System.Drawing.Point(0, 0);
+            this.richTextBox2.Name = "richTextBox2";
+            this.richTextBox2.Size = new System.Drawing.Size(1286, 541);
+            this.richTextBox2.TabIndex = 3;
+            this.richTextBox2.Text = "";
+            this.richTextBox2.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged_2);
             // 
             // Form2
             // 
@@ -72,7 +72,7 @@
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(1429, 541);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.richTextBox2);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "Form2";
@@ -87,6 +87,6 @@
         #endregion
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        public  System.Windows.Forms.RichTextBox richTextBox2;
     }
 }

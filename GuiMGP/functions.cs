@@ -14,13 +14,16 @@ using GuiMGP;
 using System.Windows.Markup;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Security.AccessControl;
+using System.Windows.Controls;
 
 namespace ProjectFunctions
 {
 
     internal class Functions
     {
-        public Dictionary<string, string> Info = new Dictionary<string, string>();
+        public Dictionary<string, string> InfoGotByOldDocument = new Dictionary<string, string>();
+        public Dictionary<string, string> NewUrlsGetByTextBox = new Dictionary<string, string>();
         public List<string> Dados = new List<string>();
         public string op = "";
         public string filePath = "";
@@ -51,7 +54,7 @@ namespace ProjectFunctions
             foreach (string line in all)
             {
                 var lines = line.Split(',');
-                Info.Add(lines[0], lines[1]);
+                InfoGotByOldDocument.Add(lines[0], lines[1]);
             };
         }
 
@@ -85,7 +88,7 @@ namespace ProjectFunctions
 
 
 
-                foreach (KeyValuePair<string, string> kvp in Info)
+                foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
             {           
               Console.WriteLine($"{kvp.Key},{kvp.Value}");
 
@@ -148,29 +151,42 @@ namespace ProjectFunctions
             }
         }
 
-        public void GetClientlinks()
+        public void GetClientlinks(string ClientUrls)
         {
-            Form3 form3 = new Form3();
-            
+            string []urls = ClientUrls.Split('\n');
+            string[] all = File.ReadAllLines(filePath);
 
-            var all = File.ReadAllLines(filePath);
-
-            foreach(var line in all)
+            foreach (string line in all) 
             {
-                Dados.Add(line);
-            }
+                var lines = line.Split(',');
+                InfoGotByOldDocument.Add(lines[0],lines[1]);
+            };
 
+              File.ReadAllLines(filePath);
+
+            foreach (string urlLine in urls)
+            {
+                var lines = urlLine.Split(',');
+                NewUrlsGetByTextBox.Add(lines[0],lines[1]);
+            };
+           
+            /*foreach (string url in urls)
+            {
+               Dados.Add(url);
+            }
+         
             foreach (var item in Dados)
             {
                 string[] data = item.Split(',');
 
                 try
                 {
-                    Info.Add(data[0], data[1]);
+                    InfoGotByOldDocument.Add(data[0], data[1]);
                 }
                 catch (ArgumentException)
                 {
-                    Console.WriteLine($"Um produto com o Sku = {data[0]} Já foi adicionado");
+                    
+                    MessageBox.Show($"Um produto com o Sku = {data[0]} Já foi adicionado");
 
                 };
 
@@ -178,24 +194,23 @@ namespace ProjectFunctions
 
             Console.WriteLine("\n\n");
 
-            foreach (KeyValuePair<string, string> kvp in Info)
+            foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
             {
                 Console.WriteLine($"{kvp.Key},{kvp.Value}");
             };
-            using (var file = File.CreateText(filePath))
+            using (var file = File.CreateText(@"C:\Users\rafael\Desktop\aaa.txt"))
             {
-                foreach (KeyValuePair<string, string> kvp in Info)
+                foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
                 {
                     file.WriteLine($"{kvp.Key},{kvp.Value}");// Substitui o conteúdo do arquivo com este texto
                 };
+            file.Close();
+             */
+        }
 
-                file.Close();
-                Console.WriteLine("\ngostaria de refazer o processo ? ");
-                op = Console.ReadLine();
-            }
-        }   
-    }
-} 
+    }  
+  }
+
 
 
         
