@@ -16,6 +16,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Security.AccessControl;
 using System.Windows.Controls;
+using System.Windows.Media.Media3D;
 
 namespace ProjectFunctions
 {
@@ -26,30 +27,10 @@ namespace ProjectFunctions
         public Dictionary<string, string> NewUrlsGetByTextBox = new Dictionary<string, string>();
         public List<string> Dados = new List<string>();
         public string op = "";
-        public string filePath = "";
-
-
-        public void GetTxtPath()
-        {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.InitialDirectory = "c:\\";
-            openFileDialog1.Filter = "Text|*.txt|All|*.*";
-            openFileDialog1.FilterIndex = 0;
-            openFileDialog1.RestoreDirectory = true;
-
-            if (openFileDialog1.ShowDialog() != DialogResult.OK)
-          
-            {
-                return;
-            }
-
-                filePath = openFileDialog1.FileName;
-        }
 
         public void GetDocInfo()
         {
-            string[] all = File.ReadAllLines(filePath);
+            string[] all = File.ReadAllLines("urls.txt");
 
             foreach (string line in all)
             {
@@ -59,7 +40,7 @@ namespace ProjectFunctions
         }
 
 
-        
+
         public void WriteCsvDocument()
         {
             CultureInfo cultureInfo = new CultureInfo("pt-BR");
@@ -77,8 +58,8 @@ namespace ProjectFunctions
             ProductInf productType = new ProductInf();
             List<string> urls = new List<string>();
             var tList = new List<ProductInf>();
-            
-            var allLines = File.ReadAllLines(filePath);
+
+            var allLines = File.ReadAllLines("urls.txt");
             using (var writer = new StreamWriter(File.Create(path)))
             using (var write = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
@@ -88,32 +69,32 @@ namespace ProjectFunctions
 
 
 
-                foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
-            {           
-              Console.WriteLine($"{kvp.Key},{kvp.Value}");
+            foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
+            {
+                Console.WriteLine($"{kvp.Key},{kvp.Value}");
 
                 var httpClient = new HttpClient();
                 var html = httpClient.GetStringAsync(kvp.Value).Result;
                 var htmlDocument = new HtmlAgilityPack.HtmlDocument();
                 htmlDocument.LoadHtml(html);
-                  
+
                 var productElement = htmlDocument.DocumentNode.SelectSingleNode("//h1[@class='ui-pdp-title']");
                 productType.ProductName = productElement.InnerText.Trim();
-                
+
                 var productElement2 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='andes-money-amount__fraction']");
-                
+
                 productType.Price = productElement2.InnerText.Trim();
-                
+
                 var productElement3 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='ui-pdp-color--BLUE ui-pdp-family--REGULAR']");
-                
+
                 productElement3 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='ui-pdp-color--BLUE ui-pdp-family--REGULAR']");
                 productType.Seller = productElement3.InnerText.Trim();
-                
+
                 try
                 {
 
                     // Select the desired element
-                     var productElement4 = htmlDocument.DocumentNode.SelectSingleNode("//p[@class='ui-pdp-family--REGULAR ui-pdp-media__title']").InnerText.Trim(); ;
+                    var productElement4 = htmlDocument.DocumentNode.SelectSingleNode("//p[@class='ui-pdp-family--REGULAR ui-pdp-media__title']").InnerText.Trim(); ;
 
                     // Check if the element exists
                     if (productElement4.ToString().Contains("sem juros"))
@@ -130,42 +111,47 @@ namespace ProjectFunctions
                 {
                     Console.WriteLine("não encontrado");
                 }
-
-                //Console.WriteLine($"{productType.ProductName},{productType.Price},{productType.Seller},{productType.AdType}\n");
-
-
-                tList.Add(new ProductInf() { Sku = kvp.Key,ProductName = productType.ProductName, Price = productType.Price, Seller = productType.Seller, AdType = productType.AdType });
+                //Console.WriteLine($"{productType.ProductName},{productType.Price},{productType.Seller},{productType.AdType}\n
+                tList.Add(new ProductInf() { Sku = kvp.Key, ProductName = productType.ProductName, Price = productType.Price, Seller = productType.Seller, AdType = productType.AdType });
 
                 Thread.Sleep(200);
 
-               
 
-                using (var writer = new StreamWriter(path,false, Encoding.GetEncoding("ISO-8859-1")))
+
+                using (var writer = new StreamWriter(path, false, Encoding.GetEncoding("ISO-8859-1")))
                 using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
 
                     csv.WriteRecords(tList);
 
                 }
-                
+
             }
         }
 
         public void GetClientlinks(string ClientUrls)
         {
-            
-            string []urls = ClientUrls.Split('\n');
-            string[] all = File.ReadAllLines(filePath);
+            string[] urls = ClientUrls.Split('\n');
+            string[] all = File.ReadAllLines("urls.txt");
 
-            foreach (string line in all) 
+            if (all.Length > 0)
             {
-                var lines = line.Split(',');
-                InfoGotByOldDocument.Add(lines[0],lines[1]);
-            };
+                foreach (string Allline in all)
+                {
+                    if (Allline.Length <= 0)
+                    {
+                        continue;
+                    }
+                    var line = Allline.Split(',');
+                    InfoGotByOldDocument.Add(line[0], line[1]);
+                };
+            }
+
+
 
             foreach (string urlLine in urls)
             {
-                var dataLine = urlLine.Split(',');
+                string[] dataLine = urlLine.Split(',');
 
                 try
                 {
@@ -177,16 +163,16 @@ namespace ProjectFunctions
                 }
             };
 
-            using (var file = File.CreateText(@"C:\Users\rafael\Desktop\aaa.txt"))
+            using (var file = File.CreateText("urls.txt"))
             {
                 foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
                 {
-                    file.WriteLine($"{kvp.Key},{kvp.Value}");// Substitui o conteúdo do arquivo com este texto
+                    file.WriteLine($"{kvp.Key},{kvp.Value}");
                 };
                 file.Close();
             }
-        }        
-    }  
+        }
+    }
 }
 
 
