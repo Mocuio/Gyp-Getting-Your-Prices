@@ -15,6 +15,8 @@ namespace classes
         public string ProductName { get; set; }
         public string Price { get; set; }
         public string Seller { get; set; }
+        public string Reputation { get; set; }
+        public string Stock {  get; set; }
         public string AdType { get; set; }
      
     }

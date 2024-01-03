@@ -17,6 +17,7 @@ using System.Text;
 using System.Security.AccessControl;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
+using System.Xml;
 
 namespace ProjectFunctions
 {
@@ -30,7 +31,7 @@ namespace ProjectFunctions
 
         public void GetDocInfo()
         {
-            string[] all = File.ReadAllLines("urls.txt");
+            string[] all = File.ReadAllLines(@"C:\\Users\\rafael\\Desktop\\Gyp-Getting-Your-Prices\\GuiMGP\\urls.txt");
 
             foreach (string line in all)
             {
@@ -66,9 +67,6 @@ namespace ProjectFunctions
                 write.WriteRecords("");
             }
 
-
-
-
             foreach (KeyValuePair<string, string> kvp in InfoGotByOldDocument)
             {
                 Console.WriteLine($"{kvp.Key},{kvp.Value}");
@@ -77,6 +75,15 @@ namespace ProjectFunctions
                 var html = httpClient.GetStringAsync(kvp.Value).Result;
                 var htmlDocument = new HtmlAgilityPack.HtmlDocument();
                 htmlDocument.LoadHtml(html);
+
+                var pathToCatalogAd = htmlDocument.DocumentNode.SelectSingleNode("//a[@class='ui-pdp-s-header__link']");
+                var urlPath = pathToCatalogAd.Attributes["href"].Value;
+
+               string [] result = GetNumberOfProducts(urlPath);
+
+                productType.Reputation = result[0];
+                
+                productType.Stock = result[1];
 
                 var productElement = htmlDocument.DocumentNode.SelectSingleNode("//h1[@class='ui-pdp-title']");
                 productType.ProductName = productElement.InnerText.Trim();
@@ -89,6 +96,7 @@ namespace ProjectFunctions
 
                 productElement3 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='ui-pdp-color--BLUE ui-pdp-family--REGULAR']");
                 productType.Seller = productElement3.InnerText.Trim();
+
 
                 try
                 {
@@ -112,7 +120,16 @@ namespace ProjectFunctions
                     Console.WriteLine("não encontrado");
                 }
                 //Console.WriteLine($"{productType.ProductName},{productType.Price},{productType.Seller},{productType.AdType}\n
-                tList.Add(new ProductInf() { Sku = kvp.Key, ProductName = productType.ProductName, Price = productType.Price, Seller = productType.Seller, AdType = productType.AdType });
+                tList.Add(new ProductInf()
+                {
+                    Sku = kvp.Key,
+                    ProductName = productType.ProductName,
+                    Price = productType.Price,
+                    Seller = productType.Seller,
+                    AdType = productType.AdType,
+                    Reputation = productType.Reputation,
+                    Stock = productType.Stock
+                });
 
                 Thread.Sleep(200);
 
@@ -172,9 +189,44 @@ namespace ProjectFunctions
                 file.Close();
             }
         }
+
+        public string[] GetNumberOfProducts(string UrlCatalog)
+        {
+            string reputation = "";
+            var httpClient = new HttpClient();
+            var html = httpClient.GetStringAsync(UrlCatalog).Result;
+            var urlhtmlDocument = new HtmlAgilityPack.HtmlDocument();
+            urlhtmlDocument.LoadHtml(html);
+            
+            var ProductElement = urlhtmlDocument.DocumentNode.SelectNodes("//li[@class='ui-pdp-seller__item-description']");
+            foreach(var node in  ProductElement) {
+                string ar = node.InnerText;
+                HtmlAttribute att = node.Attributes["class"];
+                if (ar.Contains("bom"))
+                {
+                     reputation = ar;
+                }
+
+            }
+
+            string stock = "";
+            var ProductElement2 = urlhtmlDocument.DocumentNode.SelectSingleNode("//span[@class='andes-money-amount__fraction']");
+            if (ProductElement2 != null )
+            {
+                stock = ProductElement2.InnerText.Trim();
+            }
+            else
+            {
+                ProductElement2 = urlhtmlDocument.DocumentNode.SelectSingleNode("//p[@class='ui-pdp-color--BLACK ui-pdp-size--MEDIUM ui-pdp-family--SEMIBOLD']");
+                stock = ProductElement2.InnerText.Trim();
+            }
+
+            string[] result = { reputation, stock };
+            return result;
+        }
     }
 }
-
+    
 
 
         

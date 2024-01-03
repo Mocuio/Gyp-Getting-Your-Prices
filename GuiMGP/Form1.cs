@@ -56,7 +56,6 @@ namespace GuiMGP
         public void GetNewPrice_Click(object sender, EventArgs e)
         {
             Functions pg = new Functions();
-            
             pg.GetDocInfo();
             pg.WriteCsvDocument();
 
