@@ -7,23 +7,15 @@ using CsvHelper;
 using System.Globalization;
 using System.IO;
 using System.Threading;
-using System.Diagnostics;
-using System.Windows.Forms;
-using System.Runtime.CompilerServices;
-using GuiMGP;
-using System.Windows.Markup;
-using System.Net.NetworkInformation;
 using System.Text;
-using System.Security.AccessControl;
-using System.Windows.Controls;
-using System.Windows.Media.Media3D;
-using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace ProjectFunctions
 {
 
     internal class Functions
     {
+        public HtmlNodeCollection element;
         public Dictionary<string, string> InfoGotByOldDocument = new Dictionary<string, string>();
         public Dictionary<string, string> NewUrlsGetByTextBox = new Dictionary<string, string>();
         public List<string> Dados = new List<string>();
@@ -31,7 +23,7 @@ namespace ProjectFunctions
 
         public void GetDocInfo()
         {
-            string[] all = File.ReadAllLines(@"C:\\Users\\rafael\\Desktop\\Gyp-Getting-Your-Prices\\GuiMGP\\urls.txt");
+            string[] all = File.ReadAllLines(@"urls.txt");
 
             foreach (string line in all)
             {
@@ -39,8 +31,6 @@ namespace ProjectFunctions
                 InfoGotByOldDocument.Add(lines[0], lines[1]);
             };
         }
-
-
 
         public void WriteCsvDocument()
         {
@@ -76,35 +66,76 @@ namespace ProjectFunctions
                 var htmlDocument = new HtmlAgilityPack.HtmlDocument();
                 htmlDocument.LoadHtml(html);
 
-                var pathToCatalogAd = htmlDocument.DocumentNode.SelectSingleNode("//a[@class='ui-pdp-s-header__link']");
-                var urlPath = pathToCatalogAd.Attributes["href"].Value;
-
-               string [] result = GetNumberOfProducts(urlPath);
-
-                productType.Reputation = result[0];
-                
-                productType.Stock = result[1];
-
-                var productElement = htmlDocument.DocumentNode.SelectSingleNode("//h1[@class='ui-pdp-title']");
-                productType.ProductName = productElement.InnerText.Trim();
-
-                var productElement2 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='andes-money-amount__fraction']");
-
-                productType.Price = productElement2.InnerText.Trim();
-
-                var productElement3 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='ui-pdp-color--BLUE ui-pdp-family--REGULAR']");
-
-                productElement3 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='ui-pdp-color--BLUE ui-pdp-family--REGULAR']");
-                productType.Seller = productElement3.InnerText.Trim();
-
 
                 try
                 {
+                    var pathToCatalogAd = htmlDocument.DocumentNode.SelectSingleNode("//a[@class='ui-pdp-s-header__link']");
 
-                    // Select the desired element
-                    var productElement4 = htmlDocument.DocumentNode.SelectSingleNode("//p[@class='ui-pdp-family--REGULAR ui-pdp-media__title']").InnerText.Trim(); ;
+                    if (pathToCatalogAd != null)
+                    {
+                        var urlPath = pathToCatalogAd.Attributes["href"].Value;
 
-                    // Check if the element exists
+                        string[] result = GetNumberOfProducts(urlPath);
+
+                        productType.Reputation = result[0];
+
+                        productType.Stock = result[1];
+                    }
+
+                }
+                catch (Exception)
+                {
+                    productType.Reputation = "erro";
+                    productType.Stock = "erro";
+                }
+
+                //get product's name
+                try
+                {
+                    var productElement = htmlDocument.DocumentNode.SelectSingleNode("//h1[@class='ui-pdp-title']");
+                    if (productElement != null)
+                    {
+                        productType.ProductName = productElement.InnerText.Trim();
+                    }
+                }
+                catch (Exception e)
+                {
+                    productType.ProductName = "erro";
+                }
+                //get product's price
+                try
+                {
+                    var productElement2 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='andes-money-amount__fraction']");
+
+
+                    if (productElement2 != null)
+                    {
+                        productType.Price = productElement2.InnerText.Trim();
+                    }
+                }
+                catch (Exception e)
+                {
+                    productType.Price = "erro";
+                }
+
+                //get product seller's name
+                try
+                {
+                    var productElement3 = htmlDocument.DocumentNode.SelectSingleNode("//span[@class='ui-pdp-color--BLUE ui-pdp-family--REGULAR']");
+
+                    if (productElement3 != null)
+                    {
+                        productType.Seller = productElement3.InnerText.Trim();
+                    }
+                }
+                catch (Exception e) 
+                {
+                    productType.Price = "erro";
+                }
+
+                try
+                {
+                    var productElement4 = htmlDocument.DocumentNode.SelectSingleNode("//p[@class='ui-pdp-family--REGULAR ui-pdp-media__title']").InnerText.Trim();
                     if (productElement4.ToString().Contains("sem juros"))
                     {
                         productType.AdType = "Anuncio Premium";
@@ -113,11 +144,11 @@ namespace ProjectFunctions
                     {
                         productType.AdType = "Anuncio Classico";
                     }
-                    //Console.WriteLine(productType.AdType);
+
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("não encontrado");
+                    productType.AdType = "erro";
                 }
                 //Console.WriteLine($"{productType.ProductName},{productType.Price},{productType.Seller},{productType.AdType}\n
                 tList.Add(new ProductInf()
@@ -131,7 +162,7 @@ namespace ProjectFunctions
                     Stock = productType.Stock
                 });
 
-                Thread.Sleep(200);
+                Thread.Sleep(100);
 
 
 
@@ -142,7 +173,6 @@ namespace ProjectFunctions
                     csv.WriteRecords(tList);
 
                 }
-
             }
         }
 
@@ -163,8 +193,6 @@ namespace ProjectFunctions
                     InfoGotByOldDocument.Add(line[0], line[1]);
                 };
             }
-
-
 
             foreach (string urlLine in urls)
             {
@@ -192,35 +220,54 @@ namespace ProjectFunctions
 
         public string[] GetNumberOfProducts(string UrlCatalog)
         {
+            string stock = "";
             string reputation = "";
+
             var httpClient = new HttpClient();
             var html = httpClient.GetStringAsync(UrlCatalog).Result;
             var urlhtmlDocument = new HtmlAgilityPack.HtmlDocument();
             urlhtmlDocument.LoadHtml(html);
+
+
             
-            var ProductElement = urlhtmlDocument.DocumentNode.SelectNodes("//li[@class='ui-pdp-seller__item-description']");
-            foreach(var node in  ProductElement) {
-                string ar = node.InnerText;
-                HtmlAttribute att = node.Attributes["class"];
-                if (ar.Contains("bom"))
+                var ProductElement = urlhtmlDocument.DocumentNode.SelectNodes("//li[@class='ui-pdp-seller__item-description']");
+
+                if (ProductElement != null)
                 {
-                     reputation = ar;
-                }
+                    foreach (var node in ProductElement)
+                    {
+                        string ar = node.InnerText;
+                        HtmlAttribute att = node.Attributes["class"];
+                        if (ar.Contains("bom"))
+                        {
+                            reputation = ar;
+                        }
 
-            }
-
-            string stock = "";
-            var ProductElement2 = urlhtmlDocument.DocumentNode.SelectSingleNode("//span[@class='andes-money-amount__fraction']");
-            if (ProductElement2 != null )
-            {
-                stock = ProductElement2.InnerText.Trim();
+                    }
             }
             else
             {
-                ProductElement2 = urlhtmlDocument.DocumentNode.SelectSingleNode("//p[@class='ui-pdp-color--BLACK ui-pdp-size--MEDIUM ui-pdp-family--SEMIBOLD']");
-                stock = ProductElement2.InnerText.Trim();
+                reputation = "erro";
             }
+            
+                var ProductElement2 = urlhtmlDocument.DocumentNode.SelectSingleNode("//span[@class='ui-pdp-buybox__quantity__available']");
 
+                if (ProductElement2 != null)
+                {
+                    stock  = ProductElement2.InnerText.Trim();
+                    stock = Regex.Replace(stock, "", "").Replace(@"[^a-zA-Z]", "").Replace(",", "").Replace("(", "").Replace(")", "").Replace("Último ", "1 ");
+                }
+                else if (ProductElement2 != null)
+                {
+                     ProductElement2 = urlhtmlDocument.DocumentNode.SelectSingleNode("//p[@class='ui-pdp-color--BLACK ui-pdp-size--MEDIUM ui-pdp-family--SEMIBOLD']");
+                    stock = ProductElement2.InnerText.Trim();
+                    stock = Regex.Replace(stock, "", "").Replace(@"[^a-zA-Z]", "").Replace(",", "").Replace("(", "").Replace(")", "").Replace("!", "").Replace("Último ", "1");
+                }
+                else
+                {
+                    stock = "erro";
+                }
+   
             string[] result = { reputation, stock };
             return result;
         }
